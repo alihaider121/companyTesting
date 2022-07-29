@@ -1,4 +1,5 @@
 const { defineConfig } = require("cypress");
+const cucumber = require("cypress-cucumber-preprocessor").default;
 const mysql = require("mysql");
 function queryTestDb(query, config) {
   // creates a new mysql connection using credentials from cypress.json env's
@@ -16,17 +17,19 @@ function queryTestDb(query, config) {
     });
   });
 }
+// { "testFiles": '**/*.feature' }
 
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
-      on("task", {
-        queryDb: (query) => {
-          return queryTestDb(query, config);
-        },
-      });
+      on("file:preprocessor", cucumber()),
+        on("task", {
+          queryDb: (query) => {
+            return queryTestDb(query, config);
+          },
+        });
     },
-
+    // specPattern: "**/*.feature",
     env: {
       db: {
         host: "sql6.freesqldatabase.com",
